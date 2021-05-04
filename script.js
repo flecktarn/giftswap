@@ -3,7 +3,6 @@ var map;
 var namesLeft;
 var delay = 5;
 
-main()
 
 $("#beginbutton").click(function(){
     main();
