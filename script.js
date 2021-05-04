@@ -3,6 +3,8 @@ var map;
 var namesLeft;
 var delay = 5;
 
+main()
+
 $("#beginbutton").click(function(){
     main();
 })
@@ -71,33 +73,38 @@ $('#showrecipientbutton').click(function(){
 });
 
 function initialize(senderNames){
-    var map = []
+    map = []
     var recipientNames = [...senderNames]
-    console.log(recipientNames);
     for(let i=0; i<senderNames.length; i++){
         //if there are only three people left we need to avoid leaving one sender with no one to send to
         if(recipientNames.length == 3){
             //shuffle the array
             recipientNames = shuffleArray(recipientNames);
-            map.push([recipientNames[0],recipientNames[1]]);
-            map.push([recipientNames[1],recipientNames[2]]);
-            map.push([recipientNames[2],recipientNames[0]]);
+            map.push([senderNames[i],recipientNames[1]]);
+            map.push([senderNames[i+1],recipientNames[2]]);
+            map.push([senderNames[i+2],recipientNames[0]]);
+            
             //now escape
-            break;
+
+            for(let i=0; i<map.length; i++){
+                console.log(map[i][0] + ' buys for ' + map[i][1]);
+            }
+            shuffleArray(map);
+            return map;
+        }
+        else{
+            let name = senderNames[i];
+            let recipients = removeValueFromArray(name,recipientNames);
+            let randomIndex = Math.floor(Math.random()*recipients.length);
+            let chosenRecipient = recipients[randomIndex];
+            let mapping = [name,chosenRecipient];
+            map.push(mapping);
+            recipientNames = removeValueFromArray(chosenRecipient,recipientNames);
         }
 
-        let name = senderNames[i];
-        let recipients = removeValueFromArray(name,recipientNames);
-        let randomIndex = Math.floor(Math.random()*recipients.length);
-        let chosenRecipient = recipients[randomIndex];
-        let mapping = [name,chosenRecipient];
-        map.push(mapping);
-        recipientNames = removeValueFromArray(chosenRecipient,recipientNames);
     }
-    for(let i=0; i<map.length; i++){
-        console.log(map[i][0] + ' buys for ' + map[i][1]);
-    }
-    return map;
+
+
 }
 
 function iterate(){
