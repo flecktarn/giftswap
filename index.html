@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div id = "main-content">
+            <div id = "start">
+                <h2 style="text-align: center">Start</h2>
+                <p style="text-align: center">Input names below, one per line.</p>
+                <textarea id = "names">
+Alan
+Bob
+Carl
+
+</textarea>
+
+                <button id = "beginbutton">Begin.</button>
+
+            </div>
+            <div id = "main" style="display:none">
+            <h2 style="text-align: center">Pass me to</h2>
+            <h1 style="text-align: center" id = "name1">Name</h1>
+            <div style="width:80%;margin-left: 20%;margin-top: 20px">
+            <input type="checkbox" id="check1" name="check1" value="Bike" onchange = "checkClearance()">
+            <label for="check1" id = "confirmname">I confirm that I am <b id = 'name2'>(name)</b></label><br><br>
+            <input type="checkbox" id="check2" name="check2" value="Car" onchange = "checkClearance()">
+            <label for= "check2"> I confirm that no one else is watching</label><br>
+            </div>
+            <br><br>
+            <button id = "showrecipientbutton">Show me my recipient.</button>
+            <div id = "hideme">
+                <h2 style="text-align: center">You are getting a gift for:</h1>
+                <h1 style="text-align: center" id = "name3">Name</h1>
+                <h2 style="text-align: center" id="counter" hidden>5</h1>
+                <div id = "bar"></div>
+            </div>
+        </div>
+        <div id = "end" style = "display:none">
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <h1 style='text-align: center'>done :)</h1>
+            <button id = 'resetbutton'>Start again.</button>
+        </div>
+        </div>
+        <script>
+            var senderNames;
+            var map;
+            var namesLeft;
+            var delay = 5;
+            
+            $("#beginbutton").click(function(){
+                main();
+            })
+
+            $("#resetbutton").click(function(){
+                document.location.reload();
+            });
+
+
+
+
+            function shuffleArray(array) {
+                let curId = array.length;
+                // There remain elements to shuffle
+                while (0 !== curId) {
+                    // Pick a remaining element
+                    let randId = Math.floor(Math.random() * curId);
+                    curId -= 1;
+                    // Swap it with the current element.
+                    let tmp = array[curId];
+                    array[curId] = array[randId];
+                    array[randId] = tmp;
+                }
+                return array;
+            }
+
+            $("#showrecipientbutton").click(function(){
+                $("#hideme").show();
+            });
+
+            function removeValueFromArray(value,array){
+                //assumes that there is only one instance
+                let array2 = [...array];
+                for(let i=0; i<array.length; i++){
+                    if(array2[i] == value) {
+                        array2.splice(i,1);
+                    }
+                }
+                return array2;
+            }
+
+            function checkClearance(){
+                if($("#check1").is(':checked')
+                && $("#check2").is(':checked')  ){
+                    $("#showrecipientbutton").prop('disabled',false);
+                }
+                else{
+                    $("#showrecipientbutton").prop('disabled',true);
+                }
+            }
+
+            $('#showrecipientbutton').click(function(){
+                $('#counter').html(5);
+                $('#bar').animate({width:'toggle'},{duration:1000*delay,easing:'linear'});
+                setTimeout(function(){
+                    $('#bar').animate({width:'toggle'},{duration:0,easing:'linear'});
+                    $('#hideme').hide()
+                    $('#check1').prop('checked',false);
+                    $('#check2').prop('checked',false);
+                    $("#showrecipientbutton").prop('disabled',true);
+                    iterate();
+                    }, 1000*delay);
+                for(let i=0; i<5; i++){
+                    setTimeout(function(){$('#counter').html(i)},delay*1000-1000*i);
+                }
+            });
+
+            function initialize(senderNames){
+                var map = []
+                var recipientNames = [...senderNames]
+                console.log(recipientNames);
+                for(let i=0; i<senderNames.length; i++){
+                    //if there are only three people left we need to avoid leaving one sender with no one to send to
+                    if(recipientNames.length == 3){
+                        //shuffle the array
+                        recipientNames = shuffleArray(recipientNames);
+                        map.push([recipientNames[0],recipientNames[1]]);
+                        map.push([recipientNames[1],recipientNames[2]]);
+                        map.push([recipientNames[2],recipientNames[0]]);
+                        //now escape
+                        break;
+                    }
+
+                    let name = senderNames[i];
+                    let recipients = removeValueFromArray(name,recipientNames);
+                    let randomIndex = Math.floor(Math.random()*recipients.length);
+                    let chosenRecipient = recipients[randomIndex];
+                    let mapping = [name,chosenRecipient];
+                    map.push(mapping);
+                    recipientNames = removeValueFromArray(chosenRecipient,recipientNames);
+                }
+                for(let i=0; i<map.length; i++){
+                    console.log(map[i][0] + ' buys for ' + map[i][1]);
+                }
+                return map;
+            }
+            
+            function iterate(){
+                if (map.length == 0){
+                    //the end
+                    $('#main').hide();
+                    $('#end').show();
+                    console.log('done');
+
+                }
+                else{
+                    $("#showrecipientbutton").prop('disabled',true);
+                    $('#name1').html(map[0][0]);
+                    $('#name2').html(map[0][0]);
+                    $('#name3').html(map[0][1]);
+                    map.shift();
+                }
+            }
+
+            function duplicates(array){
+                array.sort()
+                for(let i=0; i<array.length-1; i++){
+                    if(array[i] == array[i+1]){
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            
+            function main(){
+            senderNames = $('#names').val().split('\n');
+            //remove whitespace
+            let i = senderNames.length;    
+            while(i--) !/\S/.test(senderNames[i]) && senderNames.splice(i, 1);
+            if(senderNames.length < 3){
+                alert("Please specify at least three participants.");
+                return;
+            }
+            //check for duplicates
+            if (duplicates(senderNames)){
+                alert("Duplicate entries detected, please ensure that each entry is unique.")
+                return;
+            }
+
+            senderNames = shuffleArray(senderNames);
+            namesLeft = senderNames.length;
+            map = initialize(senderNames);
+            $('#start').hide();
+            $('#main').show();
+            $('#hideme').hide();
+            iterate();
+            }
+        </script>
+    </body>
+</html>
