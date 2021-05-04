@@ -3,6 +3,7 @@ var map;
 var namesLeft;
 var delay = 5;
 
+main();
 
 $("#beginbutton").click(function(){
     main();
@@ -78,7 +79,6 @@ function initialize(senderNames){
         //if there are only three people left we need to avoid leaving one sender with no one to send to
         if(recipientNames.length == 3){
             //shuffle the array
-            recipientNames = shuffleArray(recipientNames);
             map.push([senderNames[i],recipientNames[1]]);
             map.push([senderNames[i+1],recipientNames[2]]);
             map.push([senderNames[i+2],recipientNames[0]]);
